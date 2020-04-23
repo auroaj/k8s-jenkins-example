@@ -4,8 +4,6 @@ pipeline {
         NAME = "${env.BRANCH_NAME == "master" ? "example" : "example-staging"}"
         VERSION = readMavenPom().getVersion()
         DOMAIN = 'localhost'
-        REGISTRY = 'davidcampos/k8s-jenkins-example'
-        REGISTRY_CREDENTIAL = 'dockerhub-davidcampos'
     }
     agent {
         kubernetes {
@@ -27,19 +25,7 @@ pipeline {
             }
             steps {
                 container('docker') {
-                    sh "docker build -t ${REGISTRY}:${VERSION} ."
-                }
-            }
-        }
-        stage('Docker Publish') {
-            when {
-                environment name: 'DEPLOY', value: 'true'
-            }
-            steps {
-                container('docker') {
-                    withDockerRegistry([credentialsId: "${REGISTRY_CREDENTIAL}", url: ""]) {
-                        sh "docker push ${REGISTRY}:${VERSION}"
-                    }
+                    sh "docker build -t local:${VERSION} ."
                 }
             }
         }
